@@ -178,3 +178,77 @@ oc get BackupStorageLocations -n openshift-adp
 oc get dpa dpa-instance -n openshift-adp -o jsonpath='{.status}' | jq
 ```
 
+## Create the backup CR: overview
+
+Migration script [Source](https://github.com/openshift/ops-sop/blob/master/hypershift/utils/dr-script/migrate-hcp.sh)
+
+- Hooks
+  - Pause HC and NP
+  - Scale KAS
+  - Backup ETCD
+  - Approaches:
+    - CSISnapshot for ETCD (sample: clusters-jparrill-hosted/data-etcd-0)
+    - ETCDCTL backup
+  - Backup Objects
+    - Certificates
+    - HostedCluster
+    - Nodepool
+    - Secrets
+    - HostedControlPlane
+    - Cluster
+    - AWSCluster
+    - AWSMachineTemplate
+    - AWSMachine
+    - MachineDeployments
+    - MachineSet
+    - Machines
+  - Clean Object fields
+  - Clean routes
+  - Migrate HostedCluster
+  - Restore in destination
+  - Backup ACM/MCE objects
+    - ManagedCluster
+    - ManagedClusterAddons
+    - ManifestWork
+    - Nodepool ManifestWork
+  - Migrate Cluster in OCM
+  - Restore objects in OCM
+  - Teardown
+
+### Using CSISnapshot approach
+
+- Add a label over `VolumeSnapshotClass` `velero.io/csi-volumesnapshot-class: "true"`
+- Change the driver accondingly depending on the platform
+
+```
+apiVersion: velero.io/v1
+kind: Backup
+metadata:
+  name: csi-hc-backup
+  labels:
+    velero.io/storage-location: default
+  namespace: openshift-adp
+spec:
+  hooks: {}
+  includedNamespaces:
+  - clusters
+  - clusters-jparrill-hosted
+  includedResources:
+  - hostedcluster
+  - nodepool
+  - secrets
+  - hostedcontrolplane
+  - cluster
+  - awscluster
+  - awsmachinetemplate
+  - awsmachine
+  - machinedeployment
+  - machineset
+  - machine
+  excludedResources: []
+  storageLocation: default
+  ttl: 720h0m0s
+  volumeSnapshotLocations:
+  - dpa-instance-1
+```
+
