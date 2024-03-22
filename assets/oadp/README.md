@@ -248,7 +248,15 @@ spec:
   excludedResources: []
   storageLocation: default
   ttl: 720h0m0s
-  volumeSnapshotLocations:
-  - dpa-instance-1
 ```
 
+
+## Concerns and Issues
+
+- Custom plugins: They doesn't work pre/post -- backup plugins exist to modify the kubernetes metadata of the object before it's saved
+- Hooks only could be executed once you backup a Pod, then Pre phase will be executed before the pod backup happens and Post just after pod backup happens. For each pod, pre happens before that pod is backed up, post happens after that pod is backed up. Also, during this time, any PVCs mounted by that pod will be backed up, so the pre- and post- hooks can be used for things like making DB dumps, freezing/unfreezing applications, etc.
+
+
+## Alternatives
+
+-

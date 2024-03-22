@@ -30,11 +30,11 @@ spec:
           name: cloud-credentials
   configuration:
     nodeAgent:
-      enabled: true
+      enable: true
       uploaderType: kopia
     velero:
       defaultPlugins:
         - openshift
         - aws
         - csi
-      resourceTimeout: 10m
+      resourceTimeout: 2h
