@@ -250,12 +250,39 @@ spec:
   ttl: 720h0m0s
 ```
 
+## Restore backup in the same MGMT Cluster
+
+
+- Create the Restore CR
+
+```yaml
+apiVersion: velero.io/v1
+kind: Restore
+metadata:
+  name: csi-hc-restore
+  namespace: openshift-adp
+spec:
+  backupName: csi-hc-backup
+  existingResourcePolicy: update
+  excludedResources:
+  - nodes
+  - events
+  - events.events.k8s.io
+  - backups.velero.io
+  - restores.velero.io
+  - resticrepositories.velero.io
+  restorePVs: true
+```
 
 ## Concerns and Issues
 
 - Custom plugins: They doesn't work pre/post -- backup plugins exist to modify the kubernetes metadata of the object before it's saved
 - Hooks only could be executed once you backup a Pod, then Pre phase will be executed before the pod backup happens and Post just after pod backup happens. For each pod, pre happens before that pod is backed up, post happens after that pod is backed up. Also, during this time, any PVCs mounted by that pod will be backed up, so the pre- and post- hooks can be used for things like making DB dumps, freezing/unfreezing applications, etc.
-
+- If you're migrating to an external Mgmt cluster, you will need to:
+  - Keep the same domain/subdomain
+  - Deploy OADP in the destination mgmt cluster
+  - Migrate also the OADP Objects (Backup/Restore/DataProtectionApplication/Velero Policy objects/IAM)
+-
 
 ## Alternatives
 
