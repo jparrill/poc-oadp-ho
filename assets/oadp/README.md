@@ -168,6 +168,9 @@ spec:
         - openshift
         - aws
         - csi
+      customPlugins:
+        - name: hypershift-velero-plugin
+          image: quay.io/jparrill/hypershift-velero-plugin:main
       resourceTimeout: 10m
 ```
 
